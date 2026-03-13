@@ -1,0 +1,6 @@
+# Professional Course Protection
+# Only users with the 'paid' role can access the full course paths.
+# If they don't have the role, Netlify won't even download the file to their browser.
+
+/course/*  200!  Role=paid
+/course/*  /course/dashboard  302!
