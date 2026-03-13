@@ -17,7 +17,7 @@ const navItems = [
         {navItems.map(item => (
           <li><a href={item.href}>{item.name}</a></li>
         ))}
-        <li><button id="auth-btn" class="auth-btn">Login</button></li>
+        <li><button id="auth-btn" class="auth-btn">Not Logged In</button></li>
       </ul>
     </nav>
   </div>
@@ -34,9 +34,11 @@ const navItems = [
       function updateAuthUI() {
         const user = identity.currentUser();
         if (user) {
-          authBtn.innerText = `Log Out (${user.email})`;
+          authBtn.innerText = 'Log Me Out';
+          authBtn.classList.add('logged-in');
         } else {
-          authBtn.innerText = 'Login';
+          authBtn.innerText = 'Not Logged In';
+          authBtn.classList.remove('logged-in');
         }
       }
 
