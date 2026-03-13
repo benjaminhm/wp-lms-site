@@ -1,0 +1,84 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const formattedDate = (date: Date) => date.toLocaleDateString('en-US', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+});
+---
+
+<Layout title="Blog">
+	<div class="site-layout">
+		<section class="main-content">
+      <h1 class="page-title">Blog Archive</h1>
+			{posts.map(post => (
+				<article class="post-preview card">
+          {post.data.image && <img src={post.data.image} alt={post.data.title} class="post-image" />}
+          <div class="post-meta">
+            <span class="date">{formattedDate(post.data.pubDate)}</span> • <span class="author">By {post.data.author}</span>
+          </div>
+          <h2 class="post-title"><a href={`/blog/${post.id}`}>{post.data.title}</a></h2>
+          <p class="post-excerpt">{post.data.description}</p>
+          <a href={`/blog/${post.id}`} class="read-more">Read More &rarr;</a>
+        </article>
+			))}
+		</section>
+		<Sidebar />
+	</div>
+</Layout>
+
+<style>
+  .page-title {
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+  }
+
+  .post-preview {
+    margin-bottom: 3rem;
+  }
+
+  .post-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+  }
+
+  .post-meta {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .post-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .post-title a {
+    color: var(--color-text);
+  }
+
+  .post-excerpt {
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: #444;
+  }
+
+  .read-more {
+    display: inline-block;
+    font-weight: 600;
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 2px;
+  }
+</style>

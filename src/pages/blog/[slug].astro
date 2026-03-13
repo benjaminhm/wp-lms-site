@@ -1,0 +1,135 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+
+export async function getStaticPaths() {
+	const blogEntries = await getCollection('blog');
+	return blogEntries.map(entry => ({
+		params: { slug: entry.id }, props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const formattedDate = (date: Date) => date.toLocaleDateString('en-US', {
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+});
+---
+
+<Layout title={entry.data.title}>
+	<div class="site-layout">
+		<article class="main-content single-post">
+			{entry.data.image && <img src={entry.data.image} alt={entry.data.title} class="featured-image" />}
+			
+			<div class="post-header">
+				<div class="post-meta">
+					<span class="date">{formattedDate(entry.data.pubDate)}</span> • <span class="author">By {entry.data.author}</span>
+				</div>
+				<h1 class="post-title">{entry.data.title}</h1>
+			</div>
+
+			<div class="post-content">
+				<Content />
+			</div>
+
+			<div class="post-footer">
+				{entry.data.tags && (
+					<div class="tags">
+						<strong>Tags:</strong> 
+						{entry.data.tags.map(tag => (
+							<span class="tag">#{tag}</span>
+						))}
+					</div>
+				)}
+			</div>
+		</article>
+		<Sidebar />
+	</div>
+</Layout>
+
+<style>
+	.single-post {
+		background: var(--color-white);
+		padding: 3rem;
+		border: 1px solid var(--color-border);
+		border-radius: 4px;
+	}
+
+	.featured-image {
+		width: calc(100% + 6rem);
+		margin: -3rem -3rem 2rem -3rem;
+		max-width: none;
+		height: 400px;
+		object-fit: cover;
+		border-radius: 4px 4px 0 0;
+	}
+
+	.post-header {
+		margin-bottom: 2rem;
+	}
+
+	.post-meta {
+		font-size: 0.9rem;
+		color: var(--color-text-muted);
+		margin-bottom: 0.5rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.post-title {
+		font-size: 3rem;
+		line-height: 1.1;
+	}
+
+	.post-content {
+		font-size: 1.15rem;
+		line-height: 1.8;
+		color: #333;
+	}
+
+	.post-content :global(h2) {
+		margin-top: 2.5rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.post-content :global(p) {
+		margin-bottom: 1.5rem;
+	}
+
+	.post-content :global(ul) {
+		margin-bottom: 1.5rem;
+		margin-left: 1.5rem;
+	}
+
+	.post-footer {
+		margin-top: 3rem;
+		padding-top: 2rem;
+		border-top: 1px solid var(--color-border);
+	}
+
+	.tag {
+		background: #eee;
+		padding: 0.2rem 0.5rem;
+		border-radius: 3px;
+		margin-left: 0.5rem;
+		font-size: 0.9rem;
+	}
+
+	@media (max-width: 600px) {
+		.single-post {
+			padding: 1.5rem;
+		}
+		.featured-image {
+			width: calc(100% + 3rem);
+			margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+			height: 250px;
+		}
+		.post-title {
+			font-size: 2rem;
+		}
+	}
+</style>

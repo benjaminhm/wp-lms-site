@@ -1,0 +1,79 @@
+---
+interface Props {
+  lessonId: string;
+}
+
+const { lessonId } = Astro.props;
+---
+
+<button id="complete-btn" class="progress-btn" data-lesson={lessonId}>
+  <span class="btn-text">Mark as Complete</span>
+  <span class="check hidden">✓</span>
+</button>
+
+<script>
+  const btn = document.getElementById('complete-btn');
+  if (btn) {
+    const lessonId = btn.getAttribute('data-lesson');
+    const storageKey = `lesson_complete_${lessonId}`;
+
+    // Initialize state
+    if (localStorage.getItem(storageKey)) {
+      btn.classList.add('completed');
+      btn.querySelector('.btn-text')!.textContent = 'Completed';
+      btn.querySelector('.check')!.classList.remove('hidden');
+    }
+
+    btn.addEventListener('click', () => {
+      if (localStorage.getItem(storageKey)) {
+        localStorage.removeItem(storageKey);
+        btn.classList.remove('completed');
+        btn.querySelector('.btn-text')!.textContent = 'Mark as Complete';
+        btn.querySelector('.check')!.classList.add('hidden');
+      } else {
+        localStorage.setItem(storageKey, 'true');
+        btn.classList.add('completed');
+        btn.querySelector('.btn-text')!.textContent = 'Completed';
+        btn.querySelector('.check')!.classList.remove('hidden');
+        
+        // Trigger a custom event for the sidebar to update if needed
+        window.dispatchEvent(new CustomEvent('lessonCompleted', { detail: { lessonId } }));
+      }
+    });
+  }
+</script>
+
+<style>
+  .progress-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--color-primary);
+    background: transparent;
+    color: var(--color-primary);
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 2rem;
+  }
+
+  .progress-btn:hover {
+    background: #f0f7ff;
+  }
+
+  .progress-btn.completed {
+    background: #27ae60;
+    border-color: #27ae60;
+    color: white;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .check {
+    font-size: 1.1rem;
+  }
+</style>

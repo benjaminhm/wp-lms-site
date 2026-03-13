@@ -1,0 +1,117 @@
+---
+const navItems = [
+  { name: 'Home', href: '/' },
+  { name: 'Blog', href: '/blog' },
+  { name: 'Course', href: '/course/dashboard' },
+  { name: 'About', href: '/about' },
+];
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo">
+      <span class="logo-text">Premium<span class="accent">Press</span></span>
+    </a>
+    <nav class="main-nav">
+      <ul>
+        {navItems.map(item => (
+          <li><a href={item.href}>{item.name}</a></li>
+        ))}
+        <li><button id="auth-btn" class="auth-btn">Login</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // Simple check for Netlify Identity
+  const authBtn = document.getElementById('auth-btn');
+  
+  if (authBtn) {
+    authBtn.addEventListener('click', () => {
+      // @ts-ignore
+      if (window.netlifyIdentity) {
+        // @ts-ignore
+        window.netlifyIdentity.open();
+      } else {
+        alert('Netlify Identity is not fully configured. Please enable it in your Netlify dashboard.');
+      }
+    });
+
+    // Update button text if logged in
+    document.addEventListener('DOMContentLoaded', () => {
+      // @ts-ignore
+      if (window.netlifyIdentity) {
+        // @ts-ignore
+        const user = window.netlifyIdentity.currentUser();
+        if (user) authBtn.innerText = 'Log Out';
+      }
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .logo {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .logo .accent {
+    color: var(--color-primary);
+  }
+
+  .main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .main-nav a {
+    font-weight: 600;
+    color: var(--color-text);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .main-nav a:hover {
+    color: var(--color-primary);
+  }
+
+  .auth-btn {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+  }
+
+  .auth-btn:hover {
+    background: var(--color-primary-hover);
+  }
+</style>

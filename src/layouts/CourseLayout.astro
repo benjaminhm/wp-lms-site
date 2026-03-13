@@ -1,0 +1,192 @@
+---
+import Layout from './Layout.astro';
+import { getCollection } from 'astro:content';
+
+const lessons = (await getCollection('course')).sort((a, b) => a.data.order - b.data.order);
+
+// Group lessons by module
+const modules = lessons.reduce((acc, lesson) => {
+  const moduleName = lesson.data.module || 'General';
+  if (!acc[moduleName]) acc[moduleName] = [];
+  acc[moduleName].push(lesson);
+  return acc;
+}, {} as Record<string, typeof lessons>);
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <div class="course-container protected-content">
+    <aside class="course-sidebar card">
+      <h3>Curriculum</h3>
+      <nav class="lesson-nav">
+        {Object.entries(modules).map(([moduleName, moduleLessons]) => (
+          <div class="module-group">
+            <h4 class="module-title">{moduleName}</h4>
+            <ul>
+              {moduleLessons.map(lesson => (
+                <li class={lesson.data.freePreview ? 'free' : 'locked'}>
+                  <a href={`/course/${lesson.id}`} class="lesson-link">
+                    <span class="status-icon">{lesson.data.freePreview ? '🔓' : '🔒'}</span>
+                    <span class="lesson-title">{lesson.data.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    </aside>
+    
+    <main class="course-main card">
+      <div id="gatekeeper" class="gatekeeper hidden">
+        <div class="locked-message">
+          <h2>🔒 This Lesson is Locked</h2>
+          <p>You need to purchase the course to access this content.</p>
+          <a href="/#pricing" class="pricing-btn">View Pricing</a>
+        </div>
+      </div>
+      <div id="lesson-body">
+        <slot />
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  // Client-side access guard
+  document.addEventListener('DOMContentLoaded', () => {
+    // @ts-ignore
+    const identity = window.netlifyIdentity;
+    if (!identity) return;
+
+    function checkAccess() {
+      const user = identity.currentUser();
+      const isFree = window.location.pathname.includes('01-introduction');
+      
+      const gatekeeper = document.getElementById('gatekeeper');
+      const body = document.getElementById('lesson-body');
+
+      // Check for paid role (Real) or local storage (Mock)
+      const hasPaidRole = user && user.app_metadata && user.app_metadata.roles && user.app_metadata.roles.includes('paid');
+      const hasPaidMock = localStorage.getItem('course_purchased') === 'true';
+      
+      const hasAccess = isFree || hasPaidRole || hasPaidMock;
+      
+      if (!hasAccess) {
+        if (gatekeeper) gatekeeper.classList.remove('hidden');
+        if (body) body.classList.add('hidden');
+      } else {
+        if (gatekeeper) gatekeeper.classList.add('hidden');
+        if (body) body.classList.remove('hidden');
+      }
+    }
+
+    identity.on('init', checkAccess);
+    identity.on('login', checkAccess);
+    identity.on('logout', checkAccess);
+  });
+</script>
+
+<style>
+  .course-container {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .module-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .module-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.75rem;
+    padding-left: 0.5rem;
+    border-left: 3px solid var(--color-primary);
+  }
+
+  .lesson-nav ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .lesson-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+    color: var(--color-text);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+  }
+
+  .lesson-link:hover {
+    background: #f0f7ff;
+    color: var(--color-primary);
+  }
+
+  .status-icon {
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+
+  .gatekeeper {
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #fdfdfd;
+  }
+
+  .locked-message h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .pricing-btn {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-top: 1.5rem;
+  }
+
+  .course-sidebar h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .course-main {
+    min-height: 500px;
+    position: relative;
+  }
+
+  @media (max-width: 900px) {
+    .course-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
