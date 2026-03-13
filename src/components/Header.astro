@@ -24,23 +24,24 @@ const navItems = [
 </header>
 
 <script>
-  // Netlify Identity logic
+  // Robust Netlify Identity synchronization
   document.addEventListener('DOMContentLoaded', () => {
     // @ts-ignore
     const identity = window.netlifyIdentity;
     const authBtn = document.getElementById('auth-btn');
     
     if (identity && authBtn) {
-      function updateAuthUI() {
-        const user = identity.currentUser();
-        if (user) {
+      const updateAuthUI = (user) => {
+        // Fallback to currentUser if no user passed from event
+        const currentUser = user || identity.currentUser();
+        if (currentUser) {
           authBtn.innerText = 'Log Me Out';
           authBtn.classList.add('logged-in');
         } else {
           authBtn.innerText = 'Not Logged In';
           authBtn.classList.remove('logged-in');
         }
-      }
+      };
 
       authBtn.addEventListener('click', () => {
         const user = identity.currentUser();
@@ -51,9 +52,16 @@ const navItems = [
         }
       });
 
-      identity.on('init', updateAuthUI);
-      identity.on('login', updateAuthUI);
-      identity.on('logout', updateAuthUI);
+      // Handle events
+      identity.on('init', (user) => updateAuthUI(user));
+      identity.on('login', (user) => {
+        updateAuthUI(user);
+        identity.close(); // Close the modal on successful login
+      });
+      identity.on('logout', () => updateAuthUI(null));
+
+      // Immediate check in case init already fired
+      updateAuthUI(identity.currentUser());
     }
   });
 </script>
