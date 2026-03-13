@@ -1,7 +1,7 @@
 import { escape } from 'html-escaper';
 import { Traverse } from 'neotraverse/modern';
 import * as z from 'zod/v4';
-import { s as spreadAttributes, r as renderComponent } from './entrypoint_Cud1oL5f.mjs';
+import { s as spreadAttributes, r as renderComponent } from './entrypoint_CF5rQAbt.mjs';
 import { c as createComponent } from './astro-component_BicCUq0d.mjs';
 import { Q as renderElement, aS as unescapeHTML, L as renderTemplate, aT as removeBase, aQ as isRemotePath, A as AstroError, aU as UnknownContentCollectionError, aV as RenderUndefinedEntryError, aC as prependForwardSlash, aW as createHeadAndContent } from './sequence_CwIBq7rn.mjs';
 import 'clsx';
@@ -181,11 +181,85 @@ function createGetCollection({
     }
   };
 }
+function createGetEntry({ liveCollections }) {
+  return async function getEntry(collectionOrLookupObject, lookup) {
+    let collection, lookupId;
+    if (typeof collectionOrLookupObject === "string") {
+      collection = collectionOrLookupObject;
+      if (!lookup)
+        throw new AstroError({
+          ...UnknownContentCollectionError,
+          message: "`getEntry()` requires an entry identifier as the second argument."
+        });
+      lookupId = lookup;
+    } else {
+      collection = collectionOrLookupObject.collection;
+      lookupId = "id" in collectionOrLookupObject ? collectionOrLookupObject.id : collectionOrLookupObject.slug;
+    }
+    if (collection in liveCollections) {
+      throw new AstroError({
+        ...UnknownContentCollectionError,
+        message: `Collection "${collection}" is a live collection. Use getLiveEntry() instead of getEntry().`
+      });
+    }
+    if (typeof lookupId === "object") {
+      throw new AstroError({
+        ...UnknownContentCollectionError,
+        message: `The entry identifier must be a string. Received object.`
+      });
+    }
+    const store = await globalDataStore.get();
+    if (store.hasCollection(collection)) {
+      const entry = store.get(collection, lookupId);
+      if (!entry) {
+        console.warn(`Entry ${collection} → ${lookupId} was not found.`);
+        return;
+      }
+      const { default: imageAssetMap } = await import('./content-assets_DleWbedO.mjs');
+      entry.data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
+      const result = {
+        ...entry,
+        collection
+      };
+      warnForPropertyAccess(
+        result.data,
+        "slug",
+        `[content] Attempted to access deprecated property on "${collection}" entry.
+The "slug" property is no longer automatically added to entries. Please use the "id" property instead.`
+      );
+      warnForPropertyAccess(
+        result,
+        "render",
+        `[content] Invalid attempt to access "render()" method on "${collection}" entry.
+To render an entry, use "render(entry)" from "astro:content".`
+      );
+      return result;
+    }
+    return void 0;
+  };
+}
+function warnForPropertyAccess(entry, prop, message) {
+  if (!(prop in entry)) {
+    let _value = void 0;
+    Object.defineProperty(entry, prop, {
+      get() {
+        if (_value === void 0) {
+          console.error(message);
+        }
+        return _value;
+      },
+      set(v) {
+        _value = v;
+      },
+      enumerable: false
+    });
+  }
+}
 const CONTENT_LAYER_IMAGE_REGEX = /__ASTRO_IMAGE_="([^"]+)"/g;
 async function updateImageReferencesInBody(html, fileName) {
   const { default: imageAssetMap } = await import('./content-assets_DleWbedO.mjs');
   const imageObjects = /* @__PURE__ */ new Map();
-  const { getImage } = await import('./_astro_assets_UJLsJJkr.mjs').then(n => n._);
+  const { getImage } = await import('./_astro_assets_CB_Ae0FP.mjs').then(n => n._);
   for (const [_full, imagePath] of html.matchAll(CONTENT_LAYER_IMAGE_REGEX)) {
     try {
       const decodedImagePath = JSON.parse(imagePath.replaceAll("&#x22;", '"'));
@@ -355,4 +429,8 @@ const getCollection = createGetCollection({
 	liveCollections,
 });
 
-export { getCollection as g, renderEntry as r };
+const getEntry = createGetEntry({
+	liveCollections,
+});
+
+export { getEntry as a, getCollection as g, renderEntry as r };

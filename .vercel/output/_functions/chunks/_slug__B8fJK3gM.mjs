@@ -1,9 +1,9 @@
 import { c as createComponent } from './astro-component_BicCUq0d.mjs';
 import 'piccolore';
 import { L as renderTemplate, x as maybeRenderHead, a2 as addAttribute, aR as renderSlot } from './sequence_CwIBq7rn.mjs';
-import { r as renderComponent } from './entrypoint_Cud1oL5f.mjs';
-import { g as getCollection, r as renderEntry } from './_astro_content_DZRJXFB-.mjs';
-import { $ as $$Layout, r as renderScript } from './Layout_BQ268DzX.mjs';
+import { r as renderComponent } from './entrypoint_CF5rQAbt.mjs';
+import { g as getCollection, a as getEntry, r as renderEntry } from './_astro_content_B6pY2y9Q.mjs';
+import { $ as $$Layout, r as renderScript } from './Layout_B3NgrknH.mjs';
 import 'clsx';
 
 const $$CourseLayout = createComponent(async ($$result, $$props, $$slots) => {
@@ -27,17 +27,13 @@ const $$ProgressBtn = createComponent(($$result, $$props, $$slots) => {
   return renderTemplate`${maybeRenderHead()}<button id="complete-btn" class="progress-btn"${addAttribute(lessonId, "data-lesson")} data-astro-cid-i4uc3jnx> <span class="btn-text" data-astro-cid-i4uc3jnx>Mark as Complete</span> <span class="check hidden" data-astro-cid-i4uc3jnx>✓</span> </button> ${renderScript($$result, "/Users/benjaminmustonen/.gemini/antigravity/scratch/wp-netlify-site/src/components/ProgressBtn.astro?astro&type=script&index=0&lang.ts")}`;
 }, "/Users/benjaminmustonen/.gemini/antigravity/scratch/wp-netlify-site/src/components/ProgressBtn.astro", void 0);
 
-async function getStaticPaths() {
-  const lessons = await getCollection("course");
-  return lessons.map((lesson) => ({
-    params: { slug: lesson.id },
-    props: { lesson }
-  }));
-}
 const $$slug = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$props, $$slots);
   Astro2.self = $$slug;
-  const { lesson } = Astro2.props;
+  const { slug } = Astro2.params;
+  if (!slug) return Astro2.redirect("/course/dashboard");
+  const lesson = await getEntry("course", slug);
+  if (!lesson) return Astro2.redirect("/404");
   const { Content } = await renderEntry(lesson);
   return renderTemplate`${renderComponent($$result, "CourseLayout", $$CourseLayout, { "title": lesson.data.title, "description": lesson.data.description, "data-astro-cid-afvkppsn": true }, { "default": async ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="lesson-content" data-astro-cid-afvkppsn> <div class="lesson-header" data-astro-cid-afvkppsn> <span class="lesson-tag" data-astro-cid-afvkppsn>Module: ${lesson.data.module}</span> <h1 data-astro-cid-afvkppsn>${lesson.data.title}</h1> </div> ${lesson.data.videoUrl && renderTemplate`<div class="video-container" data-astro-cid-afvkppsn> <iframe${addAttribute(lesson.data.videoUrl, "src")} frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen data-astro-cid-afvkppsn></iframe> </div>`} <div class="prose" data-astro-cid-afvkppsn> ${renderComponent($$result2, "Content", Content, { "data-astro-cid-afvkppsn": true })} </div> ${renderComponent($$result2, "ProgressBtn", $$ProgressBtn, { "lessonId": lesson.id, "data-astro-cid-afvkppsn": true })} <div class="lesson-footer" data-astro-cid-afvkppsn> <hr data-astro-cid-afvkppsn> <p data-astro-cid-afvkppsn>Having trouble? <a href="/contact" data-astro-cid-afvkppsn>Contact Support</a></p> </div> </div> ` })}`;
 }, "/Users/benjaminmustonen/.gemini/antigravity/scratch/wp-netlify-site/src/pages/course/[slug].astro", void 0);
@@ -49,7 +45,6 @@ const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: $$slug,
   file: $$file,
-  getStaticPaths,
   url: $$url
 }, Symbol.toStringTag, { value: 'Module' }));
 

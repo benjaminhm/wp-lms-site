@@ -1,9 +1,9 @@
 import { c as createComponent } from './astro-component_BicCUq0d.mjs';
 import 'piccolore';
 import { L as renderTemplate, x as maybeRenderHead, a2 as addAttribute } from './sequence_CwIBq7rn.mjs';
-import { r as renderComponent } from './entrypoint_Cud1oL5f.mjs';
-import { g as getCollection, r as renderEntry } from './_astro_content_DZRJXFB-.mjs';
-import { $ as $$Layout } from './Layout_BQ268DzX.mjs';
+import { r as renderComponent } from './entrypoint_CF5rQAbt.mjs';
+import { g as getCollection, r as renderEntry } from './_astro_content_B6pY2y9Q.mjs';
+import { $ as $$Layout } from './Layout_B3NgrknH.mjs';
 import { $ as $$Sidebar } from './Sidebar_DtXnl2mh.mjs';
 
 async function getStaticPaths() {

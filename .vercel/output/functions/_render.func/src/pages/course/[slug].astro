@@ -1,16 +1,14 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import CourseLayout from '../../layouts/CourseLayout.astro';
 import ProgressBtn from '../../components/ProgressBtn.astro';
 
-export async function getStaticPaths() {
-	const lessons = await getCollection('course');
-	return lessons.map(lesson => ({
-		params: { slug: lesson.id }, props: { lesson },
-	}));
-}
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/course/dashboard');
 
-const { lesson } = Astro.props;
+const lesson = await getEntry('course', slug);
+if (!lesson) return Astro.redirect('/404');
+
 const { Content } = await render(lesson);
 ---
 

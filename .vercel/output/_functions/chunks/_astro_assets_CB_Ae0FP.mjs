@@ -1,5 +1,5 @@
 import { A as AstroError, a_ as NoImageMetadata, a$ as FailedToFetchRemoteImageDimensions, b0 as RemoteImageNotAllowed, aE as joinPaths, b1 as ExpectedImage, aQ as isRemotePath, b2 as LocalImageUsedWrongly, b3 as MissingImageDimension, b4 as UnsupportedImageFormat, b5 as IncompatibleDescriptorOptions, b6 as UnsupportedImageConversion, b7 as InvalidImageService, b8 as ExpectedImageOptions, b9 as ExpectedNotESMImage, ba as ImageMissingAlt, x as maybeRenderHead, a2 as addAttribute, L as renderTemplate, bb as FontFamilyNotFound, aS as unescapeHTML } from './sequence_CwIBq7rn.mjs';
-import { t as typeHandlers, a as types, i as isRemoteAllowed, s as spreadAttributes } from './entrypoint_Cud1oL5f.mjs';
+import { t as typeHandlers, a as types, i as isRemoteAllowed, s as spreadAttributes } from './entrypoint_CF5rQAbt.mjs';
 import { D as DEFAULT_OUTPUT_FORMAT, a as VALID_SUPPORTED_FORMATS, b as DEFAULT_HASH_PROPS } from './consts_Bd-1c2lz.mjs';
 import * as mime from 'mrmime';
 import { c as createComponent } from './astro-component_BicCUq0d.mjs';
@@ -504,7 +504,7 @@ async function getConfiguredImageService() {
   if (!globalThis?.astroAsset?.imageService) {
     const { default: service } = await import(
       // @ts-expect-error
-      './sharp_B_gTx-Vp.mjs'
+      './sharp_sVFcsM12.mjs'
     ).catch((e) => {
       const error = new AstroError(InvalidImageService);
       error.cause = e;
