@@ -1,9 +1,9 @@
-import { c as createComponent } from './astro-component_BicCUq0d.mjs';
+import { c as createComponent } from './astro-component_z7cAEwVD.mjs';
 import 'piccolore';
-import { L as renderTemplate, x as maybeRenderHead, a2 as addAttribute, aR as renderSlot } from './sequence_CwIBq7rn.mjs';
-import { r as renderComponent } from './entrypoint_CF5rQAbt.mjs';
-import { g as getCollection, a as getEntry, r as renderEntry } from './_astro_content_B6pY2y9Q.mjs';
-import { $ as $$Layout, r as renderScript } from './Layout_B3NgrknH.mjs';
+import { L as renderTemplate, x as maybeRenderHead, a2 as addAttribute, aR as renderSlot } from './sequence_DqVODMpl.mjs';
+import { r as renderComponent } from './entrypoint_CIKYOezl.mjs';
+import { a as getCollection, g as getEntry, r as renderEntry } from './_astro_content_DWY0kqhF.mjs';
+import { $ as $$Layout, r as renderScript } from './Layout_D3pRhXDh.mjs';
 import 'clsx';
 
 const $$CourseLayout = createComponent(async ($$result, $$props, $$slots) => {

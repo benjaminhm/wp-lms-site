@@ -1,5 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
-import { a6 as defineMiddleware, af as sequence } from './chunks/sequence_CwIBq7rn.mjs';
+import { a6 as defineMiddleware, af as sequence } from './chunks/sequence_DqVODMpl.mjs';
 import 'piccolore';
 import 'clsx';
 

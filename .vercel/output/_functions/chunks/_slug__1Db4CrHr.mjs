@@ -1,22 +1,18 @@
-import { c as createComponent } from './astro-component_BicCUq0d.mjs';
+import { c as createComponent } from './astro-component_z7cAEwVD.mjs';
 import 'piccolore';
-import { L as renderTemplate, x as maybeRenderHead, a2 as addAttribute } from './sequence_CwIBq7rn.mjs';
-import { r as renderComponent } from './entrypoint_CF5rQAbt.mjs';
-import { g as getCollection, r as renderEntry } from './_astro_content_B6pY2y9Q.mjs';
-import { $ as $$Layout } from './Layout_B3NgrknH.mjs';
-import { $ as $$Sidebar } from './Sidebar_DtXnl2mh.mjs';
+import { L as renderTemplate, x as maybeRenderHead, a2 as addAttribute } from './sequence_DqVODMpl.mjs';
+import { r as renderComponent } from './entrypoint_CIKYOezl.mjs';
+import { g as getEntry, r as renderEntry } from './_astro_content_DWY0kqhF.mjs';
+import { $ as $$Layout } from './Layout_D3pRhXDh.mjs';
+import { $ as $$Sidebar } from './Sidebar_C5C2VxGV.mjs';
 
-async function getStaticPaths() {
-  const blogEntries = await getCollection("blog");
-  return blogEntries.map((entry) => ({
-    params: { slug: entry.id },
-    props: { entry }
-  }));
-}
 const $$slug = createComponent(async ($$result, $$props, $$slots) => {
   const Astro2 = $$result.createAstro($$props, $$slots);
   Astro2.self = $$slug;
-  const { entry } = Astro2.props;
+  const { slug } = Astro2.params;
+  if (!slug) return Astro2.redirect("/blog");
+  const entry = await getEntry("blog", slug);
+  if (!entry) return Astro2.redirect("/404");
   const { Content } = await renderEntry(entry);
   const formattedDate = (date) => date.toLocaleDateString("en-US", {
     year: "numeric",
@@ -33,7 +29,6 @@ const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
 	__proto__: null,
 	default: $$slug,
 	file: $$file,
-	getStaticPaths,
 	url: $$url
 }, Symbol.toStringTag, { value: 'Module' }));
 

@@ -1,6 +1,6 @@
-import { c as createComponent } from './astro-component_BicCUq0d.mjs';
+import { c as createComponent } from './astro-component_z7cAEwVD.mjs';
 import 'piccolore';
-import { x as maybeRenderHead, L as renderTemplate } from './sequence_CwIBq7rn.mjs';
+import { x as maybeRenderHead, L as renderTemplate } from './sequence_DqVODMpl.mjs';
 import 'clsx';
 
 const $$Sidebar = createComponent(($$result, $$props, $$slots) => {
