@@ -1,0 +1,261 @@
+---
+---
+
+<div id="auth-modal" class="auth-modal hidden">
+  <div class="auth-card card">
+    <button id="close-auth" class="close-btn">&times;</button>
+    
+    <div class="auth-tabs">
+      <button class="tab-btn active" data-tab="login">Login</button>
+      <button class="tab-btn" data-tab="register">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login-form" class="auth-form">
+      <h2>Welcome Back</h2>
+      <div class="input-group">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" required />
+      </div>
+      <div class="input-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" required />
+      </div>
+      <div id="login-error" class="error-msg hidden"></div>
+      <button type="submit" class="btn btn-primary" id="login-submit">Login</button>
+    </form>
+
+    <!-- Register Form -->
+    <form id="register-form" class="auth-form hidden">
+      <h2>Create Account</h2>
+      <div class="input-group">
+        <label for="register-email">Email</label>
+        <input type="email" id="register-email" required />
+      </div>
+      <div class="input-group">
+        <label for="register-password">Password (min 6 chars)</label>
+        <input type="password" id="register-password" required minlength="6" />
+      </div>
+      <div id="register-error" class="error-msg hidden"></div>
+      <div id="register-success" class="success-msg hidden">Check your email for a confirmation link!</div>
+      <button type="submit" class="btn btn-primary" id="register-submit">Register</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  import { supabase } from '../lib/supabase';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('auth-modal');
+    const closeBtn = document.getElementById('close-auth');
+    const tabs = document.querySelectorAll('.tab-btn');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    
+    // Tab Switching Logic
+    tabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        tabs.forEach(t => t.classList.remove('active'));
+        // @ts-ignore
+        e.target.classList.add('active');
+        
+        // @ts-ignore
+        if (e.target.dataset.tab === 'login') {
+          loginForm?.classList.remove('hidden');
+          registerForm?.classList.add('hidden');
+        } else {
+          loginForm?.classList.add('hidden');
+          registerForm?.classList.remove('hidden');
+        }
+      });
+    });
+
+    // Close Modal Logic
+    closeBtn?.addEventListener('click', () => {
+      modal?.classList.add('hidden');
+    });
+
+    // Supabase Login Logic
+    loginForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (document.getElementById('login-email') as HTMLInputElement).value;
+      const password = (document.getElementById('login-password') as HTMLInputElement).value;
+      const errorMsg = document.getElementById('login-error');
+      const submitBtn = document.getElementById('login-submit');
+
+      if (submitBtn) submitBtn.innerText = 'Logging in...';
+      if (errorMsg) errorMsg.classList.add('hidden');
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        if (errorMsg) {
+          errorMsg.innerText = error.message;
+          errorMsg.classList.remove('hidden');
+        }
+        if (submitBtn) submitBtn.innerText = 'Login';
+      } else {
+        // Success! Reload page to trigger new server state
+        window.location.reload();
+      }
+    });
+
+    // Supabase Register Logic
+    registerForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (document.getElementById('register-email') as HTMLInputElement).value;
+      const password = (document.getElementById('register-password') as HTMLInputElement).value;
+      const errorMsg = document.getElementById('register-error');
+      const successMsg = document.getElementById('register-success');
+      const submitBtn = document.getElementById('register-submit');
+
+      if (submitBtn) submitBtn.innerText = 'Registering...';
+      if (errorMsg) errorMsg.classList.add('hidden');
+      if (successMsg) successMsg.classList.add('hidden');
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) {
+        if (errorMsg) {
+          errorMsg.innerText = error.message;
+          errorMsg.classList.remove('hidden');
+        }
+        if (submitBtn) submitBtn.innerText = 'Register';
+      } else {
+        if (successMsg) successMsg.classList.remove('hidden');
+        if (submitBtn) submitBtn.innerText = 'Success!';
+        (document.getElementById('register-email') as HTMLInputElement).value = '';
+        (document.getElementById('register-password') as HTMLInputElement).value = '';
+      }
+    });
+  });
+</script>
+
+<style>
+  .auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .auth-card {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    position: relative;
+    border-radius: 12px;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--color-text-muted);
+  }
+
+  .auth-tabs {
+    display: flex;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    position: relative;
+  }
+
+  .tab-btn.active {
+    color: var(--color-primary);
+  }
+
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--color-primary);
+  }
+
+  .auth-form h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .input-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .input-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .error-msg {
+    color: #e53e3e;
+    background: #fed7d7;
+    padding: 0.8rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .success-msg {
+    color: #38a169;
+    background: #c6f6d5;
+    padding: 0.8rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+</style>

@@ -24,17 +24,18 @@ const navItems = [
 </header>
 
 <script>
-  // Robust Netlify Identity synchronization
-  document.addEventListener('DOMContentLoaded', () => {
-    // @ts-ignore
-    const identity = window.netlifyIdentity;
+  import { supabase } from '../lib/supabase';
+
+  // Robust Supabase Auth synchronization
+  document.addEventListener('DOMContentLoaded', async () => {
     const authBtn = document.getElementById('auth-btn');
+    const authModal = document.getElementById('auth-modal');
     
-    if (identity && authBtn) {
-      const updateAuthUI = (user) => {
-        // Fallback to currentUser if no user passed from event
-        const currentUser = user || identity.currentUser();
-        if (currentUser) {
+    if (authBtn) {
+      const updateAuthUI = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
           authBtn.innerText = 'Log Me Out';
           authBtn.classList.add('logged-in');
         } else {
@@ -43,25 +44,25 @@ const navItems = [
         }
       };
 
-      authBtn.addEventListener('click', () => {
-        const user = identity.currentUser();
-        if (user) {
-          identity.logout();
+      authBtn.addEventListener('click', async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await supabase.auth.signOut();
+          window.location.reload(); // Hard reload to clear server state
         } else {
-          identity.open();
+          authModal?.classList.remove('hidden');
         }
       });
 
-      // Handle events
-      identity.on('init', (user) => updateAuthUI(user));
-      identity.on('login', (user) => {
-        updateAuthUI(user);
-        identity.close(); // Close the modal on successful login
+      // Handle auth state changes (e.g. login success)
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+           updateAuthUI();
+        }
       });
-      identity.on('logout', () => updateAuthUI(null));
 
-      // Immediate check in case init already fired
-      updateAuthUI(identity.currentUser());
+      // Initial check
+      updateAuthUI();
     }
   });
 </script>

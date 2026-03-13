@@ -59,21 +59,22 @@ const { title, description } = Astro.props;
 </Layout>
 
 <script>
-  // Client-side access guard
-  document.addEventListener('DOMContentLoaded', () => {
-    // @ts-ignore
-    const identity = window.netlifyIdentity;
-    if (!identity) return;
+  import { supabase } from '../lib/supabase';
 
-    function checkAccess() {
-      const user = identity.currentUser();
+  // Client-side access guard (Supabase Fallback)
+  // Note: True security will be handled by Astro Middleware shortly!
+  document.addEventListener('DOMContentLoaded', async () => {
+    
+    async function checkAccess() {
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       const isFree = window.location.pathname.includes('01-introduction');
       
       const gatekeeper = document.getElementById('gatekeeper');
       const body = document.getElementById('lesson-body');
 
-      // Check for paid role (Real) or local storage (Mock)
-      const hasPaidRole = user && user.app_metadata && user.app_metadata.roles && user.app_metadata.roles.includes('paid');
+      // Check for paid role (Real Supabase User) or local storage (Mock)
+      const hasPaidRole = user; // For now, any logged-in user counts as 'paid' until we build roles
       const hasPaidMock = localStorage.getItem('course_purchased') === 'true';
       
       const hasAccess = isFree || hasPaidRole || hasPaidMock;
@@ -87,9 +88,8 @@ const { title, description } = Astro.props;
       }
     }
 
-    identity.on('init', checkAccess);
-    identity.on('login', checkAccess);
-    identity.on('logout', checkAccess);
+    supabase.auth.onAuthStateChange(checkAccess);
+    checkAccess();
   });
 </script>
 
