@@ -1,10 +1,12 @@
 # Professional Course Protection
-# 1. Allow everyone to see the Dashboard and Introduction
-/course/dashboard  200
-/course/01-introduction  200
+# 1. Explicitly allow the Dashboard and Intro (with and without trailing slashes)
+/course/dashboard     /course/dashboard/index.html  200
+/course/dashboard/    /course/dashboard/index.html  200
+/course/01-introduction   /course/01-introduction/index.html  200
+/course/01-introduction/  /course/01-introduction/index.html  200
 
-# 2. Only users with the 'paid' role can access other lessons
+# 2. Protect everything else in /course/ for 'paid' users only
 /course/*  200!  Role=paid
 
-# 3. If they don't have the role, send them back to the dashboard
-/course/*  /course/dashboard  302!
+# 3. Redirect unauthorized users back to the dashboard
+/course/*  /course/dashboard/  302!
