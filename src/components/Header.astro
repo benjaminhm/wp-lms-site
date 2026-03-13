@@ -24,30 +24,36 @@ const navItems = [
 </header>
 
 <script>
-  // Simple check for Netlify Identity
-  const authBtn = document.getElementById('auth-btn');
-  
-  if (authBtn) {
-    authBtn.addEventListener('click', () => {
-      // @ts-ignore
-      if (window.netlifyIdentity) {
-        // @ts-ignore
-        window.netlifyIdentity.open();
-      } else {
-        alert('Netlify Identity is not fully configured. Please enable it in your Netlify dashboard.');
+  // Netlify Identity logic
+  document.addEventListener('DOMContentLoaded', () => {
+    // @ts-ignore
+    const identity = window.netlifyIdentity;
+    const authBtn = document.getElementById('auth-btn');
+    
+    if (identity && authBtn) {
+      function updateAuthUI() {
+        const user = identity.currentUser();
+        if (user) {
+          authBtn.innerText = `Log Out (${user.email})`;
+        } else {
+          authBtn.innerText = 'Login';
+        }
       }
-    });
 
-    // Update button text if logged in
-    document.addEventListener('DOMContentLoaded', () => {
-      // @ts-ignore
-      if (window.netlifyIdentity) {
-        // @ts-ignore
-        const user = window.netlifyIdentity.currentUser();
-        if (user) authBtn.innerText = 'Log Out';
-      }
-    });
-  }
+      authBtn.addEventListener('click', () => {
+        const user = identity.currentUser();
+        if (user) {
+          identity.logout();
+        } else {
+          identity.open();
+        }
+      });
+
+      identity.on('init', updateAuthUI);
+      identity.on('login', updateAuthUI);
+      identity.on('logout', updateAuthUI);
+    }
+  });
 </script>
 
 <style>
