@@ -23,11 +23,11 @@ const features = [
   <!-- Hero Section -->
   <section class="hero card">
     <div class="hero-content">
-      <h1>Master Modern Web Design with PremiumPress</h1>
-      <p class="hero-sub">The ultimate course for building high-performance, WordPress-style sites with Astro and Netlify.</p>
+      <h1 id="hero-title">Master Modern Web Design with PremiumPress</h1>
+      <p id="hero-sub" class="hero-sub">The ultimate course for building high-performance, WordPress-style sites with Astro and Netlify.</p>
       <div class="hero-actions">
-        <a href="#pricing" class="btn btn-primary">Join the Course</a>
-        <a href="/course/dashboard" class="btn btn-secondary">Free Preview</a>
+        <a id="hero-primary" href="#pricing" class="btn btn-primary">Join the Course</a>
+        <a href="/course/dashboard" class="btn btn-secondary">Go to Dashboard</a>
       </div>
     </div>
   </section>
@@ -78,6 +78,30 @@ const features = [
 </Layout>
 
 <script>
+  // Handle Auth State on Homepage
+  document.addEventListener('DOMContentLoaded', () => {
+    // @ts-ignore
+    const identity = window.netlifyIdentity;
+    if (!identity) return;
+
+    const heroTitle = document.getElementById('hero-title');
+    const heroSub = document.getElementById('hero-sub');
+    const heroPrimary = document.getElementById('hero-primary');
+
+    function updateHero() {
+      const user = identity.currentUser();
+      if (user && heroTitle && heroSub && heroPrimary) {
+        heroTitle.innerText = "Welcome Back, Student!";
+        heroSub.innerText = "Ready to continue your journey? Dive back into your lessons below.";
+        heroPrimary.innerText = "Resume Course";
+        heroPrimary.setAttribute('href', '/course/dashboard');
+      }
+    }
+
+    identity.on('init', updateHero);
+    identity.on('login', updateHero);
+  });
+
   // Mock Checkout flow
   const checkoutBtn = document.getElementById('checkout-btn');
   if (checkoutBtn) {
